@@ -957,6 +957,15 @@ uint64_t PrometheusStatsFormatter::statsAsPrometheus(
                              stats.sampleCount()));
     response.add(fmt::format("{0}_sum{{{1}}} {2:.32g}\n", metric_name, tags, stats.sampleSum()));
     response.add(fmt::format("{0}_count{{{1}}} {2}\n", metric_name, tags, stats.sampleCount()));
+
+    const std::vector<double>& supported_quantiles = stats.supportedQuantiles();
+    const std::vector<double>& computed_quantiles = stats.computedQuantiles();
+    for (size_t i = 0; i < supported_quantiles.size(); ++i) {
+      double quantile = supported_quantiles[i];
+      double value = computed_quantiles[i];
+      response.add(fmt::format("{0}_quantile{{{1}threshold=\"{2:.32g}\"}} {3}\n", metric_name, hist_tags,
+                               quantile, value));
+    }
   }
 
   return metric_type_tracker.size();
